@@ -14,9 +14,11 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
-  Download
+  Download,
+  ListOrdered
 } from 'lucide-react';
 import { ARCHITECTURE_DOCS, DocItem } from './data/docsData';
+import { IMPLEMENTATION_PLAN_ITEMS } from './data/planData';
 import { RecurrenceSimulator } from './components/RecurrenceSimulator';
 import { EscalationSimulator } from './components/EscalationSimulator';
 import { DatabaseViewer } from './components/DatabaseViewer';
@@ -26,13 +28,16 @@ import { DiscussionTracker } from './components/DiscussionTracker';
 import { MarkdownViewer } from './components/MarkdownViewer';
 
 export default function App() {
-  const [activeMainTab, setActiveMainTab] = useState<'simulators' | 'data' | 'docs'>('simulators');
+  const [activeMainTab, setActiveMainTab] = useState<'simulators' | 'data' | 'docs' | 'plan'>('plan');
   const [activeSimulator, setActiveSimulator] = useState<'recurrence' | 'escalation' | 'security' | 'discussion'>('recurrence');
   const [activeDataTab, setActiveDataTab] = useState<'db' | 'api'>('db');
   const [selectedDocId, setSelectedDocId] = useState<string>('00_INDEX');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('PLAN_00_INDEX');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [planSearchQuery, setPlanSearchQuery] = useState<string>('');
 
   const selectedDoc = ARCHITECTURE_DOCS.find((d) => d.id === selectedDocId) || ARCHITECTURE_DOCS[0];
+  const selectedPlanDoc = IMPLEMENTATION_PLAN_ITEMS.find((d) => d.id === selectedPlanId) || IMPLEMENTATION_PLAN_ITEMS[0];
 
   // Filter docs
   const filteredDocs = ARCHITECTURE_DOCS.filter((d) =>
@@ -117,7 +122,24 @@ export default function App() {
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>Архитектурни Документи ({ARCHITECTURE_DOCS.length} .md файла)</span>
+            <span>Архитектурни Документи ({ARCHITECTURE_DOCS.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveMainTab('plan')}
+            className={`py-3 text-sm font-semibold border-b-2 flex items-center gap-2 transition-all ${
+              activeMainTab === 'plan'
+                ? 'border-emerald-500 text-emerald-400'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <ListOrdered className="w-4 h-4 text-emerald-400" />
+            <span className="flex items-center gap-1.5">
+              <span>План за Имплементация</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono font-normal">
+                {IMPLEMENTATION_PLAN_ITEMS.length} стъпки
+              </span>
+            </span>
           </button>
         </div>
       </header>
@@ -270,6 +292,91 @@ export default function App() {
             {/* Document Content View (8 cols) */}
             <div className="lg:col-span-8">
               <MarkdownViewer doc={selectedDoc} />
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: IMPLEMENTATION PLAN */}
+        {activeMainTab === 'plan' && (
+          <div className="space-y-6">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-indigo-950/40 border border-emerald-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    Step-by-Step Blueprint
+                  </span>
+                  <h2 className="text-base font-bold text-white tracking-tight">
+                    RemindCore Implementation Execution Plan
+                  </h2>
+                </div>
+                <p className="text-xs text-slate-300 mt-1">
+                  12 модулни стъпки с пълна изолация на домейните, SOLID архитектура, прагматични автоматизирани тестове и непрекъснато крос-модулно документиране.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-300 font-mono flex items-center gap-1.5">
+                  📁 Директория: <code className="text-emerald-400">/implementation_plan/</code>
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Sidebar with all plan files (4 cols) */}
+              <div className="lg:col-span-4 space-y-3">
+                {/* Search bar */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    placeholder="Search implementation steps..."
+                    value={planSearchQuery}
+                    onChange={(e) => setPlanSearchQuery(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:ring-emerald-500 focus:border-emerald-500 placeholder:text-slate-500"
+                  />
+                </div>
+
+                {/* Plan List */}
+                <div className="space-y-1.5 max-h-[75vh] overflow-y-auto pr-1">
+                  {IMPLEMENTATION_PLAN_ITEMS.filter((step) =>
+                    step.title.toLowerCase().includes(planSearchQuery.toLowerCase()) ||
+                    step.filename.toLowerCase().includes(planSearchQuery.toLowerCase()) ||
+                    step.summary.toLowerCase().includes(planSearchQuery.toLowerCase())
+                  ).map((step) => {
+                    const isSelected = step.id === selectedPlanId;
+                    return (
+                      <button
+                        key={step.id}
+                        onClick={() => setSelectedPlanId(step.id)}
+                        className={`w-full text-left p-3 rounded-xl border transition-all ${
+                          isSelected
+                            ? 'bg-emerald-950/40 border-emerald-500/80 shadow-md ring-1 ring-emerald-500/30'
+                            : 'bg-slate-900/60 border-slate-800 hover:bg-slate-850 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono font-bold text-slate-200 flex items-center gap-1.5">
+                            <span className="text-emerald-400">{step.filename}</span>
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                            {step.badge}
+                          </span>
+                        </div>
+                        <div className="text-xs font-semibold text-white mt-1">
+                          {step.title}
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                          {step.summary}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Document Content View (8 cols) */}
+              <div className="lg:col-span-8">
+                <MarkdownViewer doc={selectedPlanDoc} />
+              </div>
             </div>
           </div>
         )}
