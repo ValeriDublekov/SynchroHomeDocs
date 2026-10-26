@@ -1,0 +1,6 @@
+{
+  "name": "RemindCore Architecture & Spec Portal",
+  "description": "Цялостен архитектурен план, техническа спецификация и интерактивен модел за централизирана система за напомняния (Android, Web, .NET, PostgreSQL, Cloudflare).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
